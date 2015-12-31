@@ -25,4 +25,27 @@ function usv_email_cloaking_shortcode($atts)
 
 add_shortcode('mail', 'usv_email_cloaking_shortcode');
 
+shortcode_ui_register_for_shortcode(
+    'mail',
+    array(
+        'label' => 'Add a colorful button',
+        'listItemImage' => 'dashicons-email',
+        'attrs' => array(
+            array(
+                'label' => 'Email',
+                'attr' => 'email',
+                'type' => 'text',
+                'description' => 'Email Adresse eintragen',
+            ),
+            array(
+                'label' => 'Display',
+                'attr' => 'display',
+                'type' => 'text',
+                'description' => 'Anzeigetext eintragen (ansonsten wird nochmal die Email Adresse ausgegeben)',
+            ),
+        ),
+        'post_type' => array('post', 'page'),
+    )
+);
+
 ?>
