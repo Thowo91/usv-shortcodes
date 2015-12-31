@@ -1,21 +1,28 @@
 <?php
 
-function usv_email_cloaking_shortcode( $atts ) {
+function usv_email_cloaking_shortcode($atts)
+{
 
-    // Attributes
-    extract( shortcode_atts(
-            array(
-                'pre'     => '',
-                'suf'     => '',
-                'dom'     => '',
-                'display' => ''
-            ), $atts )
+    $code = (shortcode_atts(
+        array(
+            'mail' => '',
+            'display' => '0'
+        ), $atts)
     );
 
-    // Code
-    return '<span class="cloakMail" data-pre="' . $pre . '" data-suf="' . $suf . '" data-dom="' . $dom . '" data-display="' . $display . '">' . $display . '</span><noscript><br>"Diese E-Mail-Adresse ist vor Spambots geschützt! Zur Anzeige muss JavaScript eingeschaltet sein!"</noscript>';
+    if (!is_email($code['mail'])) {
+        return;
+    }
+
+    if ($code['display'] == 0) {
+        $code['display'] = $code['mail'];
+    }
+
+    $mailto = '<a href="mailto:' . antispambot($code['mail']) . '">' . $code['display'] . '</a>';
+
+    return $mailto;
 }
 
-add_shortcode( 'mail', 'usv_email_cloaking_shortcode' );
+add_shortcode('mail', 'usv_email_cloaking_shortcode');
 
 ?>
