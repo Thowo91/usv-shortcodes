@@ -5,20 +5,20 @@ function usv_email_cloaking_shortcode($atts)
 
     $code = (shortcode_atts(
         array(
-            'mail' => '',
+            'email' => '',
             'display' => '0'
         ), $atts)
     );
 
-    if (!is_email($code['mail'])) {
+    if (!is_email($code['email'])) {
         return;
     }
 
     if ($code['display'] == '0') {
-        $code['display'] = $code['mail'];
+        $code['display'] = $code['email'];
     }
 
-    $mailto = '<a href="mailto:' . antispambot($code['mail']) . '">' . $code['display'] . '</a>';
+    $mailto = '<a href="mailto:' . antispambot($code['email']) . '">' . $code['display'] . '</a>';
 
     return $mailto;
 }
