@@ -14,7 +14,7 @@ function usv_email_cloaking_shortcode($atts)
         return;
     }
 
-    if ($code['display'] == 0) {
+    if ($code['display'] == '0') {
         $code['display'] = $code['mail'];
     }
 
