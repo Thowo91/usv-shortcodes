@@ -28,7 +28,7 @@ add_shortcode('mail', 'usv_email_cloaking_shortcode');
 shortcode_ui_register_for_shortcode(
     'mail',
     array(
-        'label' => 'Add a colorful button',
+        'label' => 'Spamsichere Email',
         'listItemImage' => 'dashicons-email',
         'attrs' => array(
             array(
