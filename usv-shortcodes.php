@@ -10,6 +10,6 @@ License URI:        http://www.gnu.org/licenses/gpl-2.0.html
  */
 
 
-require_once dirname( __FILE__ ) . 'shortcodes/email_cloaking.php';
+require_once dirname( __FILE__ ) . '/shortcodes/email_cloaking.php';
 
 ?>
