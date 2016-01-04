@@ -1,8 +1,8 @@
 <?php
 
 function usv_pagination_shortcode() {
+
 	$out       = '';
-	$pages     = '';
 	$range     = 2;
 	$showitems = ( $range * 2 ) + 1;
 	global $paged;
