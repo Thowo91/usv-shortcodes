@@ -2,19 +2,24 @@
 
 function usv_breadcrumb_shortcode() {
 
-	$out       = '';
-	$delimiter = '&raquo;';
-	$home      = 'Home';
-	$before    = '<span class="current-page">';
-	$after     = '</span>';
+	$out        = '';
+	$delimiter  = '&raquo;';
+	$home       = 'Home';
+	$voc_before = '<li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">';
+	$voc_after  = '</li>';
+	$voc_url    = ' itemprop="url"';
+	$voc_title  = '<span itemprop="title">';
+	$before     = $voc_before . '<a href=""' . $voc_url . '></a><span class="current-page" itemprop="title">';
+	$after      = '</span>';
+
 
 	if ( ! is_home() && ! is_front_page() || is_paged() ) {
 
-		$out .= '<nav class="breadcrumb">Sie sind hier: ';
+		$out .= '<nav class="breadcrumb"><ol>';
 
 		global $post;
 		$homeLink = get_bloginfo( 'url' );
-		$out .= '<a href="' . $homeLink . '">' . $home . '</a> ' . $delimiter . ' ';
+		$out .= $voc_before . '<a href="' . $homeLink . '"' . $voc_url . '>' . $voc_title . $home . $after . '</a>' . $voc_after . $delimiter . ' ';
 
 		if ( is_category() ) {
 			global $wp_query;
@@ -28,12 +33,12 @@ function usv_breadcrumb_shortcode() {
 			$out .= $before . single_cat_title( '', false ) . $after;
 
 		} elseif ( is_day() ) {
-			$out .= '<a href="' . get_year_link( get_the_time( 'Y' ) ) . '">' . get_the_time( 'Y' ) . '</a> ' . $delimiter . ' ';
-			$out .= '<a href="' . get_month_link( get_the_time( 'Y' ), get_the_time( 'm' ) ) . '">' . get_the_time( 'F' ) . '</a> ' . $delimiter . ' ';
+			$out .= $voc_before . '<a href="' . get_year_link( get_the_time( 'Y' ) ) . '"' . $voc_url . '>' . $voc_title . get_the_time( 'Y' ) . $after . '</a> ' . $voc_after . $delimiter . ' ';
+			$out .= $voc_before . '<a href="' . get_month_link( get_the_time( 'Y' ), get_the_time( 'm' ) ) . '"' . $voc_url . '>' . $voc_title . get_the_time( 'F' ) . $after . '</a> ' . $voc_after . $delimiter . ' ';
 			$out .= $before . get_the_time( 'd' ) . $after;
 
 		} elseif ( is_month() ) {
-			$out .= '<a href="' . get_year_link( get_the_time( 'Y' ) ) . '">' . get_the_time( 'Y' ) . '</a> ' . $delimiter . ' ';
+			$out .= $voc_before . '<a href="' . get_year_link( get_the_time( 'Y' ) ) . '"' . $voc_url . '>' . $voc_title . get_the_time( 'Y' ) . $after . '</a> ' . $voc_after . $delimiter . ' ';
 			$out .= $before . get_the_time( 'F' ) . $after;
 
 		} elseif ( is_year() ) {
@@ -43,22 +48,23 @@ function usv_breadcrumb_shortcode() {
 			if ( get_post_type() != 'post' ) {
 				$post_type = get_post_type_object( get_post_type() );
 				$slug      = $post_type->rewrite;
-				$out .= '<a href="' . $homeLink . '/' . $slug['slug'] . '/">' . $post_type->labels->singular_name . '</a> ' . $delimiter . ' ';
+				$out .= $voc_before . '<a href="' . $homeLink . '/' . $slug['slug'] . '/"' . $voc_url . '>' . $voc_title . $post_type->labels->singular_name . $after . '</a> ' . $voc_after . $delimiter . ' ';
 				$out .= $before . get_the_title() . $after;
-				if ( get_the_title() == '' ) { // Custom Link
+				if ( get_the_title() == '' ) {
 					$out = '';
 				}
 			} else {
-				$cat = get_the_category();
-				$cat = $cat[0];
-				$out .= get_category_parents( $cat, true, ' ' . $delimiter . ' ' );
+				$cat     = get_the_category();
+				$cat     = $cat[0];
+				$catname = get_category_parents( $cat, false, '' );
+				$out .= $voc_before . '<a href="' . $homeLink . '/category/' . $catname . '/"' . $voc_url . '>' . $voc_title . $catname . '</a>' . $voc_after . $delimiter . ' ';
 				$out .= $before . get_the_title() . $after;
 			}
 
 		} elseif ( ! is_single() && ! is_page() && get_post_type() != 'post' && ! is_404() ) {
 			$post_type = get_post_type_object( get_post_type() );
 			$out .= $before . $post_type->labels->singular_name . $after;
-			if ( get_post_type() == 'page' ) { // Custom Link
+			if ( get_post_type() == 'page' ) {
 				$out = '';
 			}
 
@@ -67,7 +73,7 @@ function usv_breadcrumb_shortcode() {
 			$cat    = get_the_category( $parent->ID );
 			$cat    = $cat[0];
 			$out .= get_category_parents( $cat, true, ' ' . $delimiter . ' ' );
-			$out .= '<a href="' . get_permalink( $parent ) . '">' . $parent->post_title . '</a> ' . $delimiter . ' ';
+			$out .= $voc_before . '<a href="' . get_permalink( $parent ) . '"' . $voc_url . '>' . $voc_title . $parent->post_title . $after . '</a> ' . $voc_after . $delimiter . ' ';
 			$out .= $before . get_the_title() . $after;
 
 		} elseif ( is_page() && ! $post->post_parent ) {
@@ -78,7 +84,7 @@ function usv_breadcrumb_shortcode() {
 			$breadcrumbs = array();
 			while ( $parent_id ) {
 				$page          = get_post( $parent_id );
-				$breadcrumbs[] = '<a href="' . get_permalink( $page->ID ) . '">' . get_the_title( $page->ID ) . '</a>';
+				$breadcrumbs[] = $voc_before . '<a href="' . get_permalink( $page->ID ) . '"' . $voc_url . '>' . $voc_title . get_the_title( $page->ID ) . $after . '</a>' . $voc_after;
 				$parent_id     = $page->post_parent;
 			}
 			$breadcrumbs = array_reverse( $breadcrumbs );
@@ -97,7 +103,7 @@ function usv_breadcrumb_shortcode() {
 			$out .= $before . 'Fehler 404' . $after;
 		}
 
-		$out .= '</nav>';
+		$out .= '</ol></nav>';
 
 		return $out;
 
