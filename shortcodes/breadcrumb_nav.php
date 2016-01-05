@@ -97,16 +97,6 @@ function usv_breadcrumb_shortcode() {
 			$out .= $before . 'Fehler 404' . $after;
 		}
 
-		if ( get_query_var( 'paged' ) ) {
-			if ( is_category() || is_day() || is_month() || is_year() || is_search() || is_tag() || is_author() ) {
-				$out .= ' (';
-			}
-			$out .= ': ' . __( 'Seite' ) . ' ' . get_query_var( 'paged' );
-			if ( is_category() || is_day() || is_month() || is_year() || is_search() || is_tag() || is_author() ) {
-				$out .= ')';
-			}
-		}
-
 		$out .= '</nav>';
 
 		return $out;
