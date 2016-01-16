@@ -13,7 +13,7 @@ function usv_breadcrumb_shortcode() {
 	$after      = '</span>';
 
 
-	if ( ! is_home() && ! is_front_page() || is_paged() ) {
+	if ( ! is_home() && ! is_front_page() && ! is_paged() ) {
 
 		$out .= '<nav class="breadcrumb"><ol>';
 
