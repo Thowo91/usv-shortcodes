@@ -24,7 +24,7 @@ function usv_email_cloaking_shortcode( $atts ) {
 
 add_shortcode( 'mail', 'usv_email_cloaking_shortcode' );
 
-if ( function_exists( shortcode_ui_register_for_shortcode ) ) {
+if (is_plugin_active('shortcode-ui/shortcode-ui.php')) {
 	shortcode_ui_register_for_shortcode(
 		'mail',
 		array(
@@ -48,5 +48,3 @@ if ( function_exists( shortcode_ui_register_for_shortcode ) ) {
 		)
 	);
 }
-
-?>

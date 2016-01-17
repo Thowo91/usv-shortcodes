@@ -9,9 +9,7 @@ License:            GNU General Public License v2 or later
 License URI:        http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-
+include_once ABSPATH . 'wp-admin/includes/plugin.php';
 require_once dirname( __FILE__ ) . '/shortcodes/email_cloaking.php';
 require_once dirname( __FILE__ ) . '/shortcodes/pagination.php';
 require_once dirname( __FILE__ ) . '/shortcodes/breadcrumb_nav.php';
-
-?>
