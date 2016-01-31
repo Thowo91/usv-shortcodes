@@ -109,7 +109,7 @@ function usv_breadcrumb_shortcode() {
 			$out .= $last . 'Beiträge mit dem Schlagwort "' . single_tag_title( '', false ) . '"' . $voc_after;
 
 		} elseif ( is_404() ) {
-			$out .= $last . 'Fehler 404' . $voc_after;
+			$out .= $voc_before . '<a itemprop="url" href="'.$homeLink.'/404/">' .$voc_title . 'Fehler 404' . $voc_after;
 		}
 
 		$out .= "\n</ol>\n</nav>";
