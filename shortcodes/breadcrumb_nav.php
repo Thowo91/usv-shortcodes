@@ -1,25 +1,34 @@
 <?php
 
+function usv_get_category_parents( $id ) {
+	$chain  = '';
+	$parent = get_term( $id, 'category' );
+
+	if ( $parent->parent && ( $parent->parent != $parent->term_id ) ) {
+		$chain .= usv_get_category_parents( $parent->parent );
+	}
+
+	$chain .= "\n<li itemscope itemtype=\"http://data-vocabulary.org/Breadcrumb\"><a itemprop=\"url\" href=\"" . esc_url( get_category_link( $parent->term_id ) ) . "\"><span itemprop=\"title\">" . $parent->name . "</span></a></li>";
+
+	return $chain;
+}
+
 function usv_breadcrumb_shortcode() {
 
 	$out        = '';
-	$delimiter  = '&raquo;';
-	$home       = 'Home';
-	$voc_before = '<li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">';
-	$voc_after  = '</li>';
-	$voc_url    = ' itemprop="url"';
+	$voc_before = "\n<li itemscope itemtype=\"http://data-vocabulary.org/Breadcrumb\">";
+	$voc_after  = '</span></a></li>';
 	$voc_title  = '<span itemprop="title">';
-	$before     = $voc_before . '<a href=""' . $voc_url . '></a><span class="current-page" itemprop="title">';
-	$after      = '</span>';
+	$last     = $voc_before . '<a itemprop="url" href=""><span class="current-page" itemprop="title">';
 
 
 	if ( ! is_home() && ! is_front_page() && ! is_paged() ) {
 
-		$out .= '<nav class="breadcrumb"><ol>';
+		$out .= "<nav class=\"breadcrumb\">\n<ol>";
 
 		global $post;
 		$homeLink = get_bloginfo( 'url' );
-		$out .= $voc_before . '<a href="' . $homeLink . '"' . $voc_url . '>' . $voc_title . $home . $after . '</a>' . $voc_after . $delimiter . ' ';
+		$out .= $voc_before . '<a itemprop="url" href="' . $homeLink . '">' . $voc_title . 'Home' . $voc_after;
 
 		if ( is_category() ) {
 			global $wp_query;
@@ -28,43 +37,43 @@ function usv_breadcrumb_shortcode() {
 			$thisCat   = get_category( $thisCat );
 			$parentCat = get_category( $thisCat->parent );
 			if ( $thisCat->parent != 0 ) {
-				$out .= ( get_category_parents( $parentCat, true, ' ' . $delimiter . ' ' ) );
+				$out .= usv_get_category_parents( $parentCat ) . $voc_after;
 			}
-			$out .= $before . single_cat_title( '', false ) . $after;
+			$out .= $last . single_cat_title( '', false ) . $voc_after;
 
 		} elseif ( is_day() ) {
-			$out .= $voc_before . '<a href="' . get_year_link( get_the_time( 'Y' ) ) . '"' . $voc_url . '>' . $voc_title . get_the_time( 'Y' ) . $after . '</a> ' . $voc_after . $delimiter . ' ';
-			$out .= $voc_before . '<a href="' . get_month_link( get_the_time( 'Y' ), get_the_time( 'm' ) ) . '"' . $voc_url . '>' . $voc_title . get_the_time( 'F' ) . $after . '</a> ' . $voc_after . $delimiter . ' ';
-			$out .= $before . get_the_time( 'd' ) . $after;
+			$out .= $voc_before . '<a itemprop="url" href="' . get_year_link( get_the_time( 'Y' ) ) . '">' . $voc_title . get_the_time( 'Y' ) . $voc_after;
+			$out .= $voc_before . '<a itemprop="url" href="' . get_month_link( get_the_time( 'Y' ), get_the_time( 'm' ) ) . '">' . $voc_title . get_the_time( 'F' ) . $voc_after;
+			$out .= $last . get_the_time( 'd' ) . $voc_after;
 
 		} elseif ( is_month() ) {
-			$out .= $voc_before . '<a href="' . get_year_link( get_the_time( 'Y' ) ) . '"' . $voc_url . '>' . $voc_title . get_the_time( 'Y' ) . $after . '</a> ' . $voc_after . $delimiter . ' ';
-			$out .= $before . get_the_time( 'F' ) . $after;
+			$out .= $voc_before . '<a itemprop="url" href="' . get_year_link( get_the_time( 'Y' ) ) . '">' . $voc_title . get_the_time( 'Y' ) . $voc_after;
+			$out .= $last . get_the_time( 'F' ) . $voc_after;
 
 		} elseif ( is_year() ) {
-			$out .= $before . get_the_time( 'Y' ) . $after;
+			$out .= $last . get_the_time( 'Y' ) . $voc_after;
 
 		} elseif ( is_single() && ! is_attachment() ) {
 			if ( get_post_type() != 'post' ) {
 				$post_type = get_post_type_object( get_post_type() );
 				$slug      = $post_type->rewrite;
-				$out .= $voc_before . '<a href="' . $homeLink . '/' . $slug['slug'] . '/"' . $voc_url . '>' . $voc_title . $post_type->labels->singular_name . $after . '</a> ' . $voc_after . $delimiter . ' ';
-				$out .= $before . get_the_title() . $after;
-				if ( get_the_title() == '' ) {
+				$out .= $voc_before . '<a itemprop="url" href="' . $homeLink . '/' . $slug['slug'] . '/">' . $voc_title . $post_type->labels->singular_name . $voc_after;
+				$out .= $last . get_the_title() . $voc_after;
+				if ( get_the_title() == '' ) { //custom link
 					$out = '';
 				}
 			} else {
 				$cat     = get_the_category();
 				$cat     = $cat[0];
-				$catname = get_category_parents( $cat, false, '' );
-				$out .= $voc_before . '<a href="' . $homeLink . '/category/' . $catname . '/"' . $voc_url . '>' . $voc_title . $catname . '</a>' . $voc_after . $delimiter . ' ';
-				$out .= $before . get_the_title() . $after;
+				$catname = usv_get_category_parents( $cat );
+				$out .= $voc_before . '<a itemprop="url" href="' . $homeLink . '/category/' . $catname . '/">' . $voc_title . $catname . $voc_after;
+				$out .= $last . get_the_title() . $voc_after;
 			}
 
 		} elseif ( ! is_single() && ! is_page() && get_post_type() != 'post' && ! is_404() ) {
 			$post_type = get_post_type_object( get_post_type() );
-			$out .= $before . $post_type->labels->singular_name . $after;
-			if ( get_post_type() == 'page' ) {
+			$out .= $last . $post_type->labels->singular_name . $voc_after;
+			if ( get_post_type() == 'page' ) { // custom link
 				$out = '';
 			}
 
@@ -72,38 +81,38 @@ function usv_breadcrumb_shortcode() {
 			$parent = get_post( $post->post_parent );
 			$cat    = get_the_category( $parent->ID );
 			$cat    = $cat[0];
-			$out .= get_category_parents( $cat, true, ' ' . $delimiter . ' ' );
-			$out .= $voc_before . '<a href="' . get_permalink( $parent ) . '"' . $voc_url . '>' . $voc_title . $parent->post_title . $after . '</a> ' . $voc_after . $delimiter . ' ';
-			$out .= $before . get_the_title() . $after;
+			$out .= usv_get_category_parents( $cat );
+			$out .= $voc_before . '<a itemprop="url" href="' . get_permalink( $parent ) . '">' . $voc_title . $parent->post_title . $voc_after;
+			$out .= $last . get_the_title() . $voc_after;
 
 		} elseif ( is_page() && ! $post->post_parent ) {
-			$out .= $before . get_the_title() . $after;
+			$out .= $last . get_the_title() . $voc_after;
 
 		} elseif ( is_page() && $post->post_parent ) {
 			$parent_id   = $post->post_parent;
 			$breadcrumbs = array();
 			while ( $parent_id ) {
 				$page          = get_post( $parent_id );
-				$breadcrumbs[] = $voc_before . '<a href="' . get_permalink( $page->ID ) . '"' . $voc_url . '>' . $voc_title . get_the_title( $page->ID ) . $after . '</a>' . $voc_after;
+				$breadcrumbs[] = $voc_before . '<a itemprop="url" href="' . get_permalink( $page->ID ) . '">' . $voc_title . get_the_title( $page->ID ) . $voc_after;
 				$parent_id     = $page->post_parent;
 			}
 			$breadcrumbs = array_reverse( $breadcrumbs );
 			foreach ( $breadcrumbs as $crumb ) {
-				$out .= $crumb . ' ' . $delimiter . ' ';
+				$out .= $crumb;
 			}
-			$out .= $before . get_the_title() . $after;
+			$out .= $last . get_the_title() . $voc_after;
 
 		} elseif ( is_search() ) {
-			$out .= $before . 'Ergebnisse für Ihre Suche nach "' . get_search_query() . '"' . $after;
+			$out .= $last . 'Ergebnisse für Ihre Suche nach "' . get_search_query() . '"' . $voc_after;
 
 		} elseif ( is_tag() ) {
-			$out .= $before . 'Beiträge mit dem Schlagwort "' . single_tag_title( '', false ) . '"' . $after;
+			$out .= $last . 'Beiträge mit dem Schlagwort "' . single_tag_title( '', false ) . '"' . $voc_after;
 
 		} elseif ( is_404() ) {
-			$out .= $before . 'Fehler 404' . $after;
+			$out .= $last . 'Fehler 404' . $voc_after;
 		}
 
-		$out .= '</ol></nav>';
+		$out .= "\n</ol>\n</nav>";
 
 		return $out;
 
